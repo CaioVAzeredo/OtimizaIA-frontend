@@ -1,15 +1,17 @@
 <main class="main">
-    <div class="container">
-        <!-- topo: logo + título -->
+   <!--  <div class="container">
         <div class="topo">
             <div class="titulo-bloco">
-                <h1 class="titulo">Analisador de Sustentabilidade Digital <span class="icones">💧⚡</span></h1>
-                <p class="subtitulo">Entenda e reduza o impacto ambiental dos seus prompts de IA. Cole seu texto abaixo
-                    para começar.</p>
+                <h1 class="titulo">
+                    Analisador de Sustentabilidade Digital <span class="icones">💧⚡</span>
+                </h1>
+                <p class="subtitulo">
+                    Entenda e reduza o impacto ambiental dos seus prompts de IA.
+                    Cole seu texto abaixo para começar.
+                </p>
             </div>
         </div>
 
-        <!-- input -->
         <div class="input-area">
             <textarea [(ngModel)]="prompt" placeholder="Cole seu prompt de IA aqui..."></textarea>
             <button class="botao" (click)="analisarImpacto()">
@@ -18,61 +20,48 @@
             </button>
         </div>
 
-        <!-- resultados -->
+        <div class="loading-container" *ngIf="loading">
+            <div class="spinner"></div>
+            <p>Analisando o impacto do seu prompt...</p>
+        </div>
+
         <section class="resultado" *ngIf="resultadoVisivel">
             <h2 class="sec-titulo">Seu prompt otimizado</h2>
 
-            <!-- caixa com texto otimizado e partes riscadas -->
             <div class="caixa-otimizada">
                 <p>
-                    Aqui está o seu prompt com as partes desnecessárias destacadas.
-                    Você pode ver como pequenas mudanças podem fazer uma grande diferença.
-                    <span class="riscado">Em resumo, eu gostaria de saber, por favor, pode me dizer</span>
-                    qual é o impacto ambiental de um prompt de IA,
-                    <span class="riscado">para concluir.</span>
+                    <ng-container *ngFor="let parte of partesRemovidas">
+                        <span class="riscado">{{ parte }}</span>
+                    </ng-container>
+                    {{ promptOtimizado }}
                 </p>
             </div>
 
-            <!-- cards -->
             <div class="cards">
                 <div class="card">
                     <div class="card-titulo"><span class="icone">💧</span> Água Gasta</div>
-                    <div class="card-valor">{{ aguaGasta }}</div>
-                    <div class="card-desc">Equivalente a 2 descargas</div>
+                    <div class="card-valor">{{ aguaAntes }} ml</div>
+                    <div class="card-desc">Antes da otimização</div>
                 </div>
 
                 <div class="card">
                     <div class="card-titulo" style="color:#b45309"><span class="icone">⚡</span> Energia Gasta</div>
-                    <div class="card-valor">{{ energiaGasta }}</div>
-                    <div class="card-desc">Carregar seu celular 5%</div>
+                    <div class="card-valor">{{ energiaAntes }} Wh</div>
+                    <div class="card-desc">Antes da otimização</div>
                 </div>
 
                 <div class="card">
-                    <div class="card-titulo" style="color:#15803d"><span class="icone">🟢</span> Consumo Otimizado</div>
-                    <div class="card-valor">{{ consumoOtimizado }}</div>
-                    <div class="card-desc">Após a otimização</div>
+                    <div class="card-titulo" style="color:#15803d"><span class="icone">🟢</span> Após Otimização</div>
+                    <div class="card-valor">{{ aguaDepois }} ml | {{ energiaDepois }} Wh</div>
+                    <div class="card-desc">Consumo otimizado</div>
                 </div>
 
                 <div class="card">
                     <div class="card-titulo" style="color:#059669"><span class="icone">⬇️</span> Economia Total</div>
-                    <div class="card-valor">{{ economiaTotal }}</div>
+                    <div class="card-valor">{{ economiaAgua }} ml | {{ economiaEnergia }} Wh</div>
                     <div class="card-desc">De recursos economizados</div>
                 </div>
             </div>
-
-            <!-- dica e apoio -->
-            <footer class="rodape">
-                <div class="dica"><strong>Dica:</strong> Prompts mais curtos e diretos não só economizam recursos, mas
-                    também geram respostas mais rápidas e precisas. Pequenas mudanças geram um grande impacto!</div>
-                <div class="apoio">
-                    <span>Apoio:</span>
-                    <div class="botoes-apoio">
-                        <button class="apoio-btn">N</button>
-                        <button class="apoio-btn">X</button>
-                        <button class="apoio-btn">+</button>
-                    </div>
-                </div>
-            </footer>
         </section>
-    </div>
+    </div> -->
 </main>
