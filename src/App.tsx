@@ -19,7 +19,6 @@ interface AnaliseOtimizacao {
   consumo: Consumo;
 }
 
-// NOTE: A API_URL deve ser a do seu backend FastAPI, ajustada para o ambiente
 const API_URL = "http://127.0.0.1:8000/analise";
 
 async function postAnaliseMensagemFixa(prompt: string): Promise<AnaliseOtimizacao | undefined> {
@@ -28,7 +27,6 @@ async function postAnaliseMensagemFixa(prompt: string): Promise<AnaliseOtimizaca
   };
 
   try {
-    // Implementação básica de backoff para retentar em caso de falha de rede/servidor
     let resp;
     const maxRetries = 3;
     for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -43,7 +41,7 @@ async function postAnaliseMensagemFixa(prompt: string): Promise<AnaliseOtimizaca
       }
 
       if (attempt < maxRetries - 1) {
-        const delay = Math.pow(2, attempt) * 1000; // Atraso: 1s, 2s, 4s
+        const delay = Math.pow(2, attempt) * 1000; 
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
@@ -52,8 +50,33 @@ async function postAnaliseMensagemFixa(prompt: string): Promise<AnaliseOtimizaca
       throw new Error(`HTTP ${resp?.status || 'Unknown'} - ${resp?.statusText || 'Server Error'}`);
     }
 
-    const dados = (await resp.json()) as AnaliseOtimizacao;
-    return dados;
+    // 1. Pegamos a resposta bruta (formato do Python)
+    const rawData = await resp.json();
+
+    // 2. Fazemos o "DE-PARA" (Mapeamento) para o formato do React
+    // Isso resolve o erro de undefined sem mudar o resto do seu código
+    const dadosFormatados: AnaliseOtimizacao = {
+      prompt_original: rawData.analise.prompt_original,
+      prompt_otimizado: rawData.analise.prompt_otimizado,
+      partes_desnecessarias: rawData.analise.partes_desnecessarias || [],
+      consumo: {
+        antes: {
+          agua_ml: rawData.metricas.consumo_agua_ml.antes,
+          energia_wh: rawData.metricas.consumo_energia_wh.antes
+        },
+        depois: {
+          agua_ml: rawData.metricas.consumo_agua_ml.depois,
+          energia_wh: rawData.metricas.consumo_energia_wh.depois
+        },
+        economia: {
+          agua_ml: rawData.metricas.consumo_agua_ml.economia,
+          energia_wh: rawData.metricas.consumo_energia_wh.economia
+        }
+      }
+    };
+
+    return dadosFormatados;
+
   } catch (err) {
     console.error("Erro ao chamar API:", err);
     return undefined;
@@ -64,29 +87,30 @@ const App: React.FC = () => {
   const [dados, setDados] = useState<AnaliseOtimizacao | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState<string>('Olá, tudo bem? Poderia me explicar detalhadamente o que é um átomo, por favor?'); // Exemplo inicial
+  const [prompt, setPrompt] = useState<string>('Olá, tudo bem? Poderia me explicar detalhadamente o que é um átomo, por favor?'); 
 
   useEffect(() => {
-    // Inicialização ou lógica de carregamento se necessário
+    // Inicialização
   }, []);
 
   const analisarImpacto = async () => {
     if (prompt.trim() === '') {
-      // Usando um modal/div customizado no lugar de alert()
       setError('Por favor, insira um prompt para análise.');
       return;
     }
     setLoading(true);
     setError(null);
+    
     const resultado = await postAnaliseMensagemFixa(prompt);
+    
     if (!resultado) {
       setError("Falha ao obter resposta do servidor. Verifique o console ou o status do backend.");
     } else if (resultado.partes_desnecessarias && resultado.partes_desnecessarias.length > 0) {
-      // Ordena o array de partes desnecessárias para garantir que a renderização fique próxima da original
       const originalParts = resultado.partes_desnecessarias.map(p => p.trim());
       resultado.partes_desnecessarias = originalParts;
     }
-
+    
+    console.log(resultado)
     setDados(resultado);
     setLoading(false);
   }
@@ -121,10 +145,10 @@ const App: React.FC = () => {
 
           <Subtituloh3>Seu prompt otimizado</Subtituloh3>
 
-          <OptimizedPromptBox hasRedundantParts={dados.partes_desnecessarias.length > 0}>
+          <OptimizedPromptBox hasRedundantParts={dados.partes_desnecessarias?.length > 0}>
             <PromptTextoOtimizado>
               {/* Renderiza as partes desnecessárias com estilo vermelho e riscado */}
-              {dados.partes_desnecessarias.length > 0 && (
+              {dados.partes_desnecessarias && dados.partes_desnecessarias.length > 0 && (
                 <ParteRemovida>
                   {dados.partes_desnecessarias.join(' ')}{' '}
                 </ParteRemovida>
@@ -180,24 +204,24 @@ const App: React.FC = () => {
 };
 
 // =================================
-//         STYLED COMPONENTS
+//         STYLED COMPONENTS
 // =================================
 
 const Principal = styled.main`
-  background-color: #ffffff; /* Fundo branco para o container principal */
-  border-radius: 12px; /* Aumentar o border-radius */
-  padding: 40px; /* Padronizar padding */
-  margin: 100px auto; /* Centralizar horizontalmente e adicionar margem superior/inferior */
-  max-width: 900px; /* Definir uma largura máxima para o conteúdo */
-  width: 90%; /* Tornar responsivo */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra mais suave */
-  font-family: 'Inter', sans-serif; /* Use uma fonte moderna */
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 40px;
+  margin: 100px auto;
+  max-width: 900px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', sans-serif;
 `;
 
 const Titulo = styled.h1`
   text-align: center;
-  font-size: 32px; /* Ajustar tamanho */
-  font-weight: 800; /* Mais negrito */
+  font-size: 32px;
+  font-weight: 800;
   margin-bottom: 5px;
   color: #1a1a1a;
 `;
@@ -267,9 +291,7 @@ const ResultadosContainer = styled.div`
   border-top: 1px solid #eee; 
 `;
 
-// NOVO COMPONENTE DE ESTILO DINÂMICO
 const OptimizedPromptBox = styled.div<{ hasRedundantParts: boolean }>`
-  /* Cores baseadas na condição */
   background-color: ${(props) => (props.hasRedundantParts ? '#fffafa' : '#e6f7ff')}; 
   border-color: ${(props) => (props.hasRedundantParts ? '#f9e2e5' : '#b3d9ff')}; 
   
@@ -291,7 +313,7 @@ const PromptTextoOtimizado = styled.p`
 `;
 
 const ParteRemovida = styled.span`
-  color: #d9534f; /* Vermelho/Rosa forte para destaque */
+  color: #d9534f;
   text-decoration: line-through; 
   margin-right: 5px;
 `;
