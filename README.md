@@ -1,73 +1,155 @@
-# React + TypeScript + Vite
+🌱 Frontend – Analisador de Sustentabilidade Digital
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicação desenvolvida em React + TypeScript + Vite, focada em analisar o impacto ambiental de prompts de IA (consumo de água e energia) e exibir os resultados de maneira visual, clara e educativa.
 
-Currently, two official plugins are available:
+🚀 Tecnologias Utilizadas
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+React (com Hooks)
 
-## React Compiler
+TypeScript
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Vite (ambiente de build rápido)
 
-## Expanding the ESLint configuration
+styled-components (estilização e responsividade)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Fetch API (requisições ao backend)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+ESLint + TypeScript Rules (qualidade do código)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+📁 Estrutura Geral do Projeto
+src/
+ ├── App.tsx          # Componente principal da aplicação
+ ├── api/             # Módulos responsáveis por chamadas HTTP
+ ├── styles/          # Componentes estilizados (styled-components)
+ └── main.tsx         # Ponto de entrada da aplicação
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+🧠 O que este front-end faz?
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Este front-end permite que o usuário:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Cole um prompt de IA em uma caixa de texto.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Clique em Analisar impacto.
+
+A aplicação envia esse prompt para o backend com:
+
+POST /analise { texto: "conteúdo do prompt" }
+
+
+O backend retorna informações como:
+
+Prompt original
+
+Prompt otimizado
+
+Partes desnecessárias
+
+Consumo de água e energia antes e depois
+
+A interface exibe:
+
+✔ Prompt Otimizado
+
+Incluindo:
+
+Trechos removidos riscados e em vermelho
+
+Redesenho do texto otimizado
+
+✔ Cartões de Consumo
+
+Exibe quatro cards:
+
+Card	Informação
+💧 Água Gasta	Antes
+⚡ Energia Gasta	Antes
+✅ Após Otimização	Água + Energia
+⬇️ Economia Total	Economia final
+
+Todos estilizados com ícones e cores.
+
+📡 Comunicação com a API
+
+A chamada principal é:
+
+async function postAnaliseMensagemFixa(prompt: string)
+
+
+Ela:
+
+Envia o prompt ao backend
+
+Tem lógica de retry com backoff exponencial
+
+Converte o JSON recebido no formato esperado pelo React
+
+Retorna um objeto do tipo:
+
+interface AnaliseOtimizacao {
+  prompt_original: string;
+  prompt_otimizado: string;
+  partes_desnecessarias: string[];
+  consumo: {
+    antes: { agua_ml: number; energia_wh: number };
+    depois: { agua_ml: number; energia_wh: number };
+    economia: { agua_ml: number; energia_wh: number };
+  };
+}
+
+🎨 Interface e UX
+
+Toda a UI é construída com styled-components, incluindo:
+
+Layout principal centralizado
+
+Cartões responsivos (grid adaptável)
+
+Caixa especial para o prompt otimizado
+
+Destaque visual para partes desnecessárias (<ParteRemovida>)
+
+Botão com animações e estados (hover, disabled)
+
+Mensagens de erro com caixa vermelha
+
+Design moderno e leve baseado em tons de azul e branco
+
+▶ Como executar o projeto
+
+Requisitos:
+
+Node.js 18+
+
+NPM ou Yarn
+
+1️⃣ Instalar dependências
+npm install
+
+2️⃣ Rodar o servidor de desenvolvimento
+npm run dev
+
+
+A aplicação ficará disponível em:
+
+http://localhost:5173
+
+🧩 Variáveis importantes no código
+URL da API:
+const API_URL = "http://127.0.0.1:8000/analise";
+
+
+Caso o backend esteja em outra máquina/porta, basta alterar essa constante.
+
+🛠 ESLint e Boas Práticas
+
+O projeto utiliza as regras padrões do Vite + React + TS.
+Para projetos maiores, é recomendado habilitar:
+
+Regras type-checked do TypeScript
+
+Plugins react-x e react-dom
+
+(Como descrito na documentação gerada pelo Vite.)
+
+📦 Build de Produção
+npm run build
